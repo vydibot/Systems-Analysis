@@ -10,7 +10,7 @@ This repository contains academic materials for the **Analysis Systems** course 
 ## 📚 Contents  
 
 ### 🛠️ Workshops  
-1. **Workshop 1**: [Systems Analysis For Santa Keagle Problem]  
+1. **Workshop 1**: [Systems Analysis For Santa Keagle Problem](/workshop1))
 
 ### 🎓 Final Project  
  
