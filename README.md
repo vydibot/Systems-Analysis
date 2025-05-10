@@ -6,6 +6,14 @@
 📅 **Date**: MAY 2025  
 
 ---
+## Contents
+
+### Workshops
+1. **Workshop 1**: [Systems Analysis For Santa Keagle Problem](/Workshop%201)
+
+2. **Workshop 2**: [Systems Architecture For Santa Keagle Problem](/Workshop%202)
+
+---
 
 ## 🎯 Competition Overview
 **Goal**: Minimize perplexity of scrambled Christmas-themed text passages by reordering words into coherent sequences.  
