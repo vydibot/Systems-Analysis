@@ -3,7 +3,7 @@
 📝 **Authors**:  
 - Jairo Arturo Barrera Mosquera (`20222020142`)  
 - Gabriela Martinez Silva (`20231020205`)  
-📅 **Date**: MAY 2025  
+📅 **Date**: March 2025  
 
 ---
 
@@ -42,7 +42,9 @@ The system follows a modular approach, designed to efficiently process shuffled 
     * **Description:** The core search engine that creates candidate sentence orderings using intelligent search strategies (e.g., A*, Simulated Annealing, Genetic Algorithms), guided by an external Evaluator module.
     * **Justification:** Implements the core functionality and manages the combinatorial explosion of possible permutations.
 
----
+
+### 📤 Output
+- `.csv` file mapping `id` to optimized word sequence.  
 
 ### ⚙️ System Requirements
 
@@ -55,15 +57,10 @@ The system follows a modular approach, designed to efficiently process shuffled 
 * **Perplexity:** The final sentence should have a low perplexity score.
 * **Semantic Coherence:** The resulting sentence must be grammatically and semantically correct.
 
----
-
 ### 📉 Sensitivity and Chaos
 
 * **Sensitivity:** The model is highly sensitive to input permutations; small changes can significantly affect perplexity scores. Sensitivity is influenced by text length (combinatorial explosion), grammatical structure ambiguity, and lexical distribution (common vs. rare words).
 * **Chaos and Randomness:** Small changes in word position can cause drastic perplexity changes, sometimes favoring grammatically incorrect phrases. The combinatorial explosion ($n!$ permutations) for $n$ words makes exhaustive evaluation computationally infeasible for larger inputs.
 
 ---  
-
-### 📤 Output
-- `.csv` file mapping `id` to optimized passage.  
 
