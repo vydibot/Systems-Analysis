@@ -13,6 +13,10 @@
 
 2. **Workshop 2**: [Systems Architecture For Santa Keagle Problem](/Workshop%202)
 
+### Catch-Up
+
+1. **Catch-Up Material**: [Systems Architecture For Santa Keagle Problem](/Catch-Up)
+
 ---
 
 ## 🎯 Competition Overview
