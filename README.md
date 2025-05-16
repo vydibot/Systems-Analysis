@@ -15,7 +15,7 @@
 
 ### Catch-Up
 
-1. **Catch-Up Material**: [Systems Architecture For Santa Keagle Problem](/Catch-Up)
+1. **Catch-Up Material**: [Catch-Up](/Catch-Up)
 
 ---
 
