@@ -91,7 +91,7 @@ if __name__ == "__main__":
     Example usage of the NormalizedInput class.
     Reads a CSV file, processes the text column, and prints the word counts.
     """
-    csv_path = 'sample_submission.csv'
+    csv_path = 'test_cases.csv'
     text_column = 'text' 
     ni = NormalizedInput(csv_path, text_column)  
     ni.read_csv()
