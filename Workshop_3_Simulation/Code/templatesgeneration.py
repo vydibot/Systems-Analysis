@@ -133,5 +133,5 @@ class TemplatesGeneration:
                 self.all_sentences.append({'id': row_id, 'sentence': sentence})
 
         sentences_df = pd.DataFrame(self.all_sentences)
-        sentences_df.to_csv("sentence_generation.csv", index=False)
-        print("All generated sentences saved to sentence_generation.csv")
+        sentences_df.to_csv("templates_generation.csv", index=False)
+        print("All generated sentences saved to templates_generation.csv")
