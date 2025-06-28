@@ -1,5 +1,5 @@
 from NormalizedInput import NormalizedInput
-from templatesgeneration import TemplatesGeneration
+from TemplatesGeneration import TemplatesGeneration
 
 if __name__ == "__main__":
     csv_path = 'sample_submission.csv'

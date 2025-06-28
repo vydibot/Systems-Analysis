@@ -1,9 +1,8 @@
 import pandas as pd
-import re
 import spacy
 from spacy.tokens import Doc
 from itertools import product
-import NormalizedInput
+from collections import defaultdict
 
 POS_CATEGORIES = {
     'VERB': 'verb',
@@ -33,10 +32,6 @@ TEMPLATES = [
     ['determiner', 'adjective', 'noun', 'verb', 'preposition', 'determiner', 'noun'],
     ['determiner', 'adjective', 'noun'],
     ['determiner', 'noun', 'verb', 'noun'],
-    ['noun', 'verb', 'noun'],
-    ['determiner', 'noun'],
-    ['noun', 'verb'],
-    ['noun', 'noun'],
 ]
 
 FALLBACK_TEMPLATES = [
@@ -67,22 +62,33 @@ class TemplatesGeneration:
             results.append({'id': row_id, 'word': token.text, 'pos_list': pos_list})
         return results
 
-    def group_words_by_pos(self, classified_words):
-        grouped = {cat: [] for cat in POS_CATEGORIES.values()}
+    def group_words_by_pos_with_duplicates(self, classified_words):
+        grouped = defaultdict(list)
+        word_pos_count = defaultdict(int)
         for item in classified_words:
             for pos in item['pos_list']:
-                if pos in grouped and item['word'] not in grouped[pos]:
-                    grouped[pos].append(item['word'])
+                if pos in POS_CATEGORIES.values():
+                    grouped[pos].append((item['word'], word_pos_count[(item['word'], pos)]))
+                    word_pos_count[(item['word'], pos)] += 1
         return grouped
 
-    def generate_sentences_for_template(self, word_pos_dict, template):
-        if all(word_pos_dict.get(pos) for pos in template):
-            return [' '.join(words) for words in product(*(word_pos_dict[pos] for pos in template))]
-        return []
+    def generate_sentences_for_template_with_duplicates(self, word_pos_dict, template):
+        # Only proceed if all required POS are present and non-empty
+        if not all(pos in word_pos_dict and word_pos_dict[pos] for pos in template):
+            return []
+        slot_word_occurrences = [word_pos_dict[pos] for pos in template]
+        all_assignments = product(*slot_word_occurrences)
+        sentences = set()
+        for assignment in all_assignments:
+            # Ensure no duplicate occurrence in the same sentence
+            if len(set(assignment)) == len(assignment):
+                sentence = ' '.join(word for word, idx in assignment)
+                sentences.add(sentence)
+        return list(sentences)
 
     def get_largest_template(self, word_pos_dict):
         for template in TEMPLATES:
-            if all(word_pos_dict.get(pos) for pos in template):
+            if all(pos in word_pos_dict and word_pos_dict[pos] for pos in template):
                 return template
         return None
 
@@ -91,27 +97,29 @@ class TemplatesGeneration:
 
     def generate(self):
         for row_id, word_counts in self.processed_dict.items():
-            # Reconstruct the normalized words list from word counts
+            # Reconstruct the normalized words list for this row
             words = []
             for word, count in word_counts.items():
                 words.extend([word] * count)
             classified = self.classify_words_in_row(row_id, words)
-            word_pos_dict = self.group_words_by_pos(classified)
+            word_pos_dict = self.group_words_by_pos_with_duplicates(classified)
             all_words = [item['word'] for item in classified]
-            largest_template = self.get_largest_template(word_pos_dict)
             used_words = set()
             generated_sentences = []
 
+            # Generate for largest template
+            largest_template = self.get_largest_template({k: [w for w, i in v] for k, v in word_pos_dict.items()})
             if largest_template:
-                generated_sentences = self.generate_sentences_for_template(word_pos_dict, largest_template)
+                generated_sentences = self.generate_sentences_for_template_with_duplicates(word_pos_dict, largest_template)
                 for sentence in generated_sentences:
                     used_words.update(sentence.split())
 
+            # Fallback for unused words
             unused_words = self.get_unused_words(all_words, used_words)
             if unused_words:
-                unused_word_pos_dict = {cat: [w for w in word_pos_dict[cat] if w in unused_words] for cat in word_pos_dict}
+                unused_word_pos_dict = {cat: [wi for wi in word_pos_dict[cat] if wi[0] in unused_words] for cat in word_pos_dict}
                 for template in FALLBACK_TEMPLATES:
-                    fallback_sentences = self.generate_sentences_for_template(unused_word_pos_dict, template)
+                    fallback_sentences = self.generate_sentences_for_template_with_duplicates(unused_word_pos_dict, template)
                     for sentence in fallback_sentences:
                         words_in_sentence = set(sentence.split())
                         if words_in_sentence & unused_words:
