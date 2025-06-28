@@ -3,6 +3,7 @@ import re
 import spacy
 from spacy.tokens import Doc
 from itertools import product
+import NormalizedInput
 
 POS_CATEGORIES = {
     'VERB': 'verb',
@@ -26,7 +27,6 @@ AMBIGUOUS_WORDS = {
     'wish': ['noun', 'verb'],
     'eat': ['noun', 'verb'],
     'unwrap': ['noun', 'verb', 'adjective'],
-    # Add more as needed...
 }
 
 TEMPLATES = [
@@ -47,19 +47,13 @@ FALLBACK_TEMPLATES = [
 ]
 
 class TemplatesGeneration:
-    """
-    A class to classify words by POS and generate grammatical sentence templates
-    using the largest possible template, with fallbacks for unused words.
-    """
-    def __init__(self, csv_path, text_column):
-        self.csv_path = csv_path
-        self.text_column = text_column
-        self.df = pd.read_csv(csv_path)
+    def __init__(self, normalized_input):
+        self.normalized_input = normalized_input
+        self.processed_dict = self.normalized_input.get_processed_dictionary()
         self.all_sentences = []
         self.nlp = spacy.load("en_core_web_sm")
 
-    def classify_words_in_row(self, row):
-        words = re.findall(r'\b[a-zA-Z]+\b', str(row[self.text_column]).lower())
+    def classify_words_in_row(self, row_id, words):
         doc = Doc(self.nlp.vocab, words=words)
         for name, proc in self.nlp.pipeline:
             doc = proc(doc)
@@ -70,7 +64,7 @@ class TemplatesGeneration:
                 for amb_pos in AMBIGUOUS_WORDS[token.text]:
                     if amb_pos not in pos_list:
                         pos_list.append(amb_pos)
-            results.append({'id': row['id'], 'word': token.text, 'pos_list': pos_list})
+            results.append({'id': row_id, 'word': token.text, 'pos_list': pos_list})
         return results
 
     def group_words_by_pos(self, classified_words):
@@ -96,8 +90,12 @@ class TemplatesGeneration:
         return set(all_words) - set(used_words)
 
     def generate(self):
-        for _, row in self.df.iterrows():
-            classified = self.classify_words_in_row(row)
+        for row_id, word_counts in self.processed_dict.items():
+            # Reconstruct the normalized words list from word counts
+            words = []
+            for word, count in word_counts.items():
+                words.extend([word] * count)
+            classified = self.classify_words_in_row(row_id, words)
             word_pos_dict = self.group_words_by_pos(classified)
             all_words = [item['word'] for item in classified]
             largest_template = self.get_largest_template(word_pos_dict)
@@ -124,7 +122,7 @@ class TemplatesGeneration:
                         break
 
             for sentence in generated_sentences:
-                self.all_sentences.append({'id': row['id'], 'sentence': sentence})
+                self.all_sentences.append({'id': row_id, 'sentence': sentence})
 
         sentences_df = pd.DataFrame(self.all_sentences)
         sentences_df.to_csv("sentence_generation.csv", index=False)

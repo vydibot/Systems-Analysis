@@ -1,4 +1,4 @@
-from normilizedinput import NormalizedInput
+from NormalizedInput import NormalizedInput
 from templatesgeneration import TemplatesGeneration
 
 if __name__ == "__main__":
@@ -6,9 +6,7 @@ if __name__ == "__main__":
     text_column = 'text'
     # Normalization and word count
     ni = NormalizedInput(csv_path, text_column)
-    ni.read_csv()
-    ni.process()
-    processed_dict = ni.get_processed_dataframe()
+    processed_dict = ni.get_processed_dictionary()
     print(processed_dict)
     # Template generation and saving
     tg = TemplatesGeneration(ni)
