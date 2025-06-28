@@ -1,6 +1,8 @@
 import pandas as pd
 import re
 from collections import Counter
+import time
+import tracemalloc
 
 class NormalizedInput:  
     def __init__(self, csv_path, text_column):
@@ -22,6 +24,8 @@ class NormalizedInput:
         return dict(Counter(words))
 
     def process(self):
+        tracemalloc.start()
+        start_time = time.time()
         print("[NormalizedInput] Starting processing of DataFrame.")
         if self.df is None:
             self.read_csv()
@@ -35,6 +39,11 @@ class NormalizedInput:
             processed_dict[row_id] = word_count
         self.processed_df = processed_dict
         print("[NormalizedInput] Processing complete.")
+        end_time = time.time()
+        current, peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        print(f"Time taken: {end_time - start_time:.4f} seconds")
+        print(f"Current memory usage: {current / 10**6:.4f} MB; Peak: {peak / 10**6:.4f} MB")
 
     def get_processed_dictionary(self):
         if self.processed_df is None:
@@ -43,3 +52,8 @@ class NormalizedInput:
 
     def get_processed_df(self):
         return self.processed_df
+
+    def profile_process(self):
+        # This method is now redundant, but kept for compatibility
+        self.process()
+
