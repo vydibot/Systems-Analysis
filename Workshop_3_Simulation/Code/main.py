@@ -8,8 +8,8 @@ if __name__ == "__main__":
     ni = NormalizedInput(csv_path, text_column)
     ni.read_csv()
     ni.process()
-    df = ni.get_processed_dataframe()
-    print(df)
+    processed_dict = ni.get_processed_dataframe()
+    print(processed_dict)
     # Template generation and saving
-    tg = TemplatesGeneration(csv_path, text_column)
+    tg = TemplatesGeneration(ni)
     tg.generate()

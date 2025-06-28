@@ -55,32 +55,33 @@ class NormalizedInput:
     def process(self):
         """
         Processes the DataFrame by normalizing text and counting word occurrences
-        for each row in the specified text column. Stores the result in processed_df.
+        for each row in the specified text column. Stores the result as a dict
+        mapping row id to a dict of word counts.
         """
         if self.df is None:
             self.read_csv()
         print("Original DataFrame:")
         print(self.df)  # Show original DataFrame
-        word_counts = []
+        processed_dict = {}
         for idx, row in self.df.iterrows():
             words = self.normalize_text(row[self.text_column])
             print(f"\nRow {idx} words:", words)
             word_count = self.count_words(words)
             print(f"Row {idx} word count:", word_count)
-            word_counts.append(word_count)
-        df_counts = pd.DataFrame(word_counts).fillna(0).astype(int)
-        df_counts.index = self.df.index  # Ensure index matches original DataFrame
-        print("\nProcessed DataFrame (word counts):")
-        print(df_counts)  # Show processed DataFrame
-        self.processed_df = df_counts
+            # Use the row's 'id' as the key if it exists, otherwise use idx
+            row_id = row['id'] if 'id' in row else idx
+            processed_dict[row_id] = word_count
+        print("\nProcessed dict (id -> word counts):")
+        print(processed_dict)
+        self.processed_df = processed_dict
 
     def get_processed_dataframe(self):
         """
-        Returns the processed DataFrame with word counts.
+        Returns the processed dictionary with word counts per id.
         If not already processed, it will process the data first.
 
         Returns:
-            pandas.DataFrame: DataFrame with word counts for each row.
+            dict: Dictionary mapping id to word count dict.
         """
         if self.processed_df is None:
             self.process()
