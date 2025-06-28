@@ -14,6 +14,7 @@ class SentencesGeneration:
         self.final_sentences = []
 
     def combine_sentences_per_row(self):
+        # For each row, select sentences to cover all original word occurrences
         for row_id, word_count_dict in self.processed_dict.items():
             original_bag = []
             for word, count in word_count_dict.items():
@@ -26,14 +27,17 @@ class SentencesGeneration:
 
             used_counter = Counter()
             selected_sentences = []
+            # Greedily select sentences (longest first) until all words are covered
             for words, sent in sorted(zip(sentence_word_lists, row_sentences), key=lambda x: -len(x[0])):
                 temp_counter = Counter(words)
+                # Only add if it doesn't exceed original word counts
                 if all(used_counter[w] + temp_counter[w] <= original_counter[w] for w in temp_counter):
                     selected_sentences.append(sent)
                     used_counter += temp_counter
                 if sum(used_counter.values()) == n_words:
                     break
 
+            # Print warning if not all words could be covered
             if sum(used_counter.values()) < n_words:
                 print(f"Warning: Could not cover all words for row {row_id}.")
 
@@ -43,5 +47,6 @@ class SentencesGeneration:
             })
 
     def save(self, output_path="sentences_generation.csv"):
+        # Save the final combined sentences per row to CSV
         pd.DataFrame(self.final_sentences).to_csv(output_path, index=False)
         print(f"Combined sentences saved to {output_path}")

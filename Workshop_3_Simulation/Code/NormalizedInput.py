@@ -12,18 +12,22 @@ class NormalizedInput:
         self.processed_df = None
 
     def read_csv(self):
+        # Load CSV file into DataFrame
         print("[NormalizedInput] Reading CSV file:", self.csv_path)
         self.df = pd.read_csv(self.csv_path)
         print("[NormalizedInput] CSV loaded. Shape:", self.df.shape)
 
     def normalize_text(self, text):
+        # Lowercase and extract words using regex
         words = re.findall(r'\b[a-zA-Z]+\b', str(text).lower())
         return words
 
     def count_words(self, words):
+        # Count occurrences of each word
         return dict(Counter(words))
 
     def process(self):
+        # Profile memory and time for normalization
         tracemalloc.start()
         start_time = time.time()
         print("[NormalizedInput] Starting processing of DataFrame.")
@@ -46,14 +50,15 @@ class NormalizedInput:
         print(f"Current memory usage: {current / 10**6:.4f} MB; Peak: {peak / 10**6:.4f} MB")
 
     def get_processed_dictionary(self):
+        # Return processed word count dictionary (run process if needed)
         if self.processed_df is None:
             self.process()
         return self.processed_df
 
     def get_processed_df(self):
+        # Return processed word count dictionary (alias)
         return self.processed_df
 
     def profile_process(self):
-        # This method is now redundant, but kept for compatibility
+        # Redundant, but kept for compatibility
         self.process()
-
